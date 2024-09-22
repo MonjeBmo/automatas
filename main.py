@@ -36,7 +36,7 @@ class AutomataProject:
             "final_states": list(self.afd.final_states)
         }
         with open('AFD.txt', 'w') as file:
-            json.dump(afd_dict, file)
+            json.dump(afd_dict, file, indent=4)
         print("AFD guardado en AFD.txt")
 
     def validar_cadena(self, cadena):
@@ -121,12 +121,31 @@ class AutomataProject:
         nfa_grap.render('Automata Generada AFN', view=True, format='png')
 
     def guardar_automata(self):
+        def convert_frozenset(obj):
+            if isinstance(obj, frozenset):
+                return list(obj)  # Convertir frozenset a lista
+            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
         with open('automata.json', 'w') as file:
             data = {
-                "AFN": str(self.afn),
-                "AFD": str(self.afd)
+                "AFN": {
+                    "Estados": list(self.afn.states),
+                    "Simbolos": list(self.afn.input_symbols),
+                    "Estado Inicial": self.afn.initial_state,
+                    "Estado Final": list(self.afn.final_states),
+                    "Transitions": self.afn.transitions
+                },
+                "AFD": {
+                    "Estados": list(self.afd.states),
+                    "Simbolos": list(self.afd.input_symbols),
+                    "Estado Inicial": self.afd.initial_state,
+                    "Estado Final": list(self.afd.final_states),
+                    "Transitions": self.afd.transitions
+                }
             }
-            json.dump(data, file)
+            # Usamos 'default' para manejar cualquier frozenset en las transiciones
+            json.dump(data, file, default=convert_frozenset, indent=4)
+
         print("Automata guardado en automata.json")
 
 
